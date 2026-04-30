@@ -1,0 +1,166 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.ArrayList;
+
+public class AplikasiPenjualan extends JFrame {
+
+    ArrayList<String> barangList = new ArrayList<>();
+    ArrayList<String> customerList = new ArrayList<>();
+    ArrayList<String> supplierList = new ArrayList<>();
+
+    DefaultTableModel modelBarang, modelCustomer, modelSupplier, modelTransaksi;
+
+    public AplikasiPenjualan() {
+        setTitle("Aplikasi Penjualan Lengkap");
+        setSize(800, 500);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        JTabbedPane tab = new JTabbedPane();
+
+        // ================= BARANG =================
+        JPanel panelBarang = new JPanel(new BorderLayout());
+        JTextField txtBarang = new JTextField();
+        JButton btnTambahBarang = new JButton("Tambah");
+
+        JPanel topBarang = new JPanel(new BorderLayout());
+        topBarang.add(txtBarang, BorderLayout.CENTER);
+        topBarang.add(btnTambahBarang, BorderLayout.EAST);
+
+        modelBarang = new DefaultTableModel(new String[]{"Barang"}, 0);
+        JTable tableBarang = new JTable(modelBarang);
+
+        btnTambahBarang.addActionListener(e -> {
+            if (!txtBarang.getText().isEmpty()) {
+                barangList.add(txtBarang.getText());
+                modelBarang.addRow(new Object[]{txtBarang.getText()});
+                txtBarang.setText("");
+            }
+        });
+
+        panelBarang.add(topBarang, BorderLayout.NORTH);
+        panelBarang.add(new JScrollPane(tableBarang), BorderLayout.CENTER);
+
+        // ================= CUSTOMER =================
+        JPanel panelCustomer = new JPanel(new BorderLayout());
+        JTextField txtCustomer = new JTextField();
+        JButton btnTambahCustomer = new JButton("Tambah");
+
+        JPanel topCustomer = new JPanel(new BorderLayout());
+        topCustomer.add(txtCustomer, BorderLayout.CENTER);
+        topCustomer.add(btnTambahCustomer, BorderLayout.EAST);
+
+        modelCustomer = new DefaultTableModel(new String[]{"Customer"}, 0);
+        JTable tableCustomer = new JTable(modelCustomer);
+
+        btnTambahCustomer.addActionListener(e -> {
+            if (!txtCustomer.getText().isEmpty()) {
+                customerList.add(txtCustomer.getText());
+                modelCustomer.addRow(new Object[]{txtCustomer.getText()});
+                txtCustomer.setText("");
+            }
+        });
+
+        panelCustomer.add(topCustomer, BorderLayout.NORTH);
+        panelCustomer.add(new JScrollPane(tableCustomer), BorderLayout.CENTER);
+
+        // ================= SUPPLIER =================
+        JPanel panelSupplier = new JPanel(new BorderLayout());
+        JTextField txtSupplier = new JTextField();
+        JButton btnTambahSupplier = new JButton("Tambah");
+
+        JPanel topSupplier = new JPanel(new BorderLayout());
+        topSupplier.add(txtSupplier, BorderLayout.CENTER);
+        topSupplier.add(btnTambahSupplier, BorderLayout.EAST);
+
+        modelSupplier = new DefaultTableModel(new String[]{"Supplier"}, 0);
+        JTable tableSupplier = new JTable(modelSupplier);
+
+        btnTambahSupplier.addActionListener(e -> {
+            if (!txtSupplier.getText().isEmpty()) {
+                supplierList.add(txtSupplier.getText());
+                modelSupplier.addRow(new Object[]{txtSupplier.getText()});
+                txtSupplier.setText("");
+            }
+        });
+
+        panelSupplier.add(topSupplier, BorderLayout.NORTH);
+        panelSupplier.add(new JScrollPane(tableSupplier), BorderLayout.CENTER);
+
+        // ================= TRANSAKSI =================
+        JPanel panelTransaksi = new JPanel(new GridLayout(6,2,10,10));
+        JComboBox<String> cbBarang = new JComboBox<>();
+        JComboBox<String> cbCustomer = new JComboBox<>();
+        JTextField txtJumlah = new JTextField();
+        JButton btnProses = new JButton("Proses");
+
+        panelTransaksi.add(new JLabel("Barang"));
+        panelTransaksi.add(cbBarang);
+        panelTransaksi.add(new JLabel("Customer"));
+        panelTransaksi.add(cbCustomer);
+        panelTransaksi.add(new JLabel("Jumlah"));
+        panelTransaksi.add(txtJumlah);
+        panelTransaksi.add(new JLabel(""));
+        panelTransaksi.add(btnProses);
+
+        modelTransaksi = new DefaultTableModel(new String[]{"Customer","Barang","Jumlah"}, 0);
+        JTable tableTransaksi = new JTable(modelTransaksi);
+
+        btnProses.addActionListener(e -> {
+            String barang = (String) cbBarang.getSelectedItem();
+            String customer = (String) cbCustomer.getSelectedItem();
+            String jumlah = txtJumlah.getText();
+
+            if (barang != null && customer != null && !jumlah.isEmpty()) {
+                modelTransaksi.addRow(new Object[]{customer, barang, jumlah});
+                txtJumlah.setText("");
+            }
+        });
+
+        JPanel panelTransaksiFull = new JPanel(new BorderLayout());
+        panelTransaksiFull.add(panelTransaksi, BorderLayout.NORTH);
+        panelTransaksiFull.add(new JScrollPane(tableTransaksi), BorderLayout.CENTER);
+
+        // ================= LAPORAN =================
+        JPanel panelLaporan = new JPanel(new BorderLayout());
+        JTextArea txtLaporan = new JTextArea();
+        JButton btnCetak = new JButton("Tampilkan Laporan");
+
+        btnCetak.addActionListener(e -> {
+            txtLaporan.setText("");
+            for (int i = 0; i < modelTransaksi.getRowCount(); i++) {
+                txtLaporan.append(
+                    modelTransaksi.getValueAt(i,0) + " membeli " +
+                    modelTransaksi.getValueAt(i,1) + " sebanyak " +
+                    modelTransaksi.getValueAt(i,2) + "\n"
+                );
+            }
+        });
+
+        panelLaporan.add(btnCetak, BorderLayout.NORTH);
+        panelLaporan.add(new JScrollPane(txtLaporan), BorderLayout.CENTER);
+
+        // ================= REFRESH DATA =================
+        tab.addChangeListener(e -> {
+            cbBarang.removeAllItems();
+            for (String b : barangList) cbBarang.addItem(b);
+
+            cbCustomer.removeAllItems();
+            for (String c : customerList) cbCustomer.addItem(c);
+        });
+
+        // ================= TAB =================
+        tab.add("Barang", panelBarang);
+        tab.add("Customer", panelCustomer);
+        tab.add("Supplier", panelSupplier);
+        tab.add("Transaksi", panelTransaksiFull);
+        tab.add("Laporan", panelLaporan);
+
+        add(tab);
+    }
+
+    public static void main(String[] args) {
+        new AplikasiPenjualan().setVisible(true);
+    }
+}
